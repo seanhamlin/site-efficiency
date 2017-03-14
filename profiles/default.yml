@@ -1,0 +1,14 @@
+# See https://developers.google.com/analytics/devguides/reporting/core/v3/quickstart/service-php
+# for more information on how to get these credentials.
+google_analytics:
+  account_id: ga:XXXXXX
+  client_id: 100XXXXXXXXXX
+  email: service-account@XXXXXX.iam.gserviceaccount.com
+  timezone: Australia/Sydney
+hosting:
+  site_name: sitename
+  site_environment: 01live
+  site_timezone: UTC
+  web_servers:
+    - web-1000
+    - web-1001

@@ -1,0 +1,17 @@
+{
+    "name": "seanhamlin/site-efficiency",
+    "type": "library",
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "autoload": {
+        "psr-4": {
+            "SiteEfficiency\\": "src/"
+        }
+    },
+    "require": {
+        "shahariaazam/google-analytics-api-php": "dev-master",
+        "symfony/console": "^3.1",
+        "symfony/yaml": "^3.1"
+    },
+    "bin": ["site-efficiency"]
+}

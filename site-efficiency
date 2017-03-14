@@ -1,0 +1,15 @@
+#!/usr/bin/env php
+<?php
+
+use Symfony\Component\Console\Application;
+use Composer\Autoload\ClassLoader;
+use SiteEfficiency\Command\AuditSites;
+
+
+/**
+ * @var ClassLoader $loader
+ */
+$loader = require 'vendor/autoload.php';
+$application = new Application();
+$application->add(new AuditSites());
+$application->run();
