@@ -30,23 +30,38 @@ class Api {
     $this->ga->auth->setPrivateKey($this->profile->getPrivateKeyFilePath());
     $this->ga->setAccountId($this->profile->getAccountId());
 
-    // Attempt to get access token, if one does not exist.
-    if (file_exists(__DIR__ . '/../../profiles/' . $this->profile->getName() . '.token')) {
-      $accessToken = file_get_contents(__DIR__ . '/../../profiles/' . $this->profile->getName() . '.token');
+    // Attempt to get the cached access token, if one does not exist.
+    if ($this->profile->doesTokenExist()) {
+      $accessToken = file_get_contents($this->profile->getTokenPath());
       $this->ga->setAccessToken($accessToken);
 
       // Debug logging.
       if ($this->output->isVerbose()) {
         $this->output->writeln(" > Debug: Access token {$accessToken} [from cache]");
       }
+
+      // Test that the token is still valid (as they expire).
+      $response = $this->ga->getProfiles();
+      if ($response['http_code'] !== 200) {
+        $this->profile->deleteToken();
+        $this->ga->setAccessToken(NULL);
+
+        // Debug logging.
+        if ($this->output->isVerbose()) {
+          $this->output->writeln(" > Debug: Deleted stale access token");
+        }
+      }
     }
-    else {
+
+    // If no access token is present, or it was stale and since deleted, get a
+    // new one.
+    if (!$this->profile->doesTokenExist()) {
       $auth = $this->ga->auth->getAccessToken();
 
       if ($auth['http_code'] == 200) {
         $accessToken = $auth['access_token'];
         $this->ga->setAccessToken($accessToken);
-        file_put_contents(__DIR__ . '/../../profiles/' . $this->profile->getName() . '.token', $accessToken);
+        file_put_contents($this->profile->getTokenPath(), $accessToken);
       }
       else {
         throw new Exception('Error getting access token');

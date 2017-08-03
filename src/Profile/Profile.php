@@ -44,6 +44,33 @@ class Profile {
   }
 
   /**
+   * Find out of a access token exists.
+   *
+   * @return bool
+   */
+  public function doesTokenExist() {
+    return file_exists($this->getTokenPath());
+  }
+
+  /**
+   * Delete the access token.
+   */
+  public function deleteToken() {
+    if ($this->doesTokenExist()) {
+      unlink($this->getTokenPath());
+    }
+  }
+
+  /**
+   * Get the cached access token path.
+   *
+   * @return string
+   */
+  public function getTokenPath() {
+    return __DIR__ . '/../../profiles/' . $this->getName() . '.token';
+  }
+
+  /**
    * Gets the value of name.
    *
    * @return mixed
