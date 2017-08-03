@@ -1,3 +1,4 @@
+.idea
 vendor
 profiles/*
 !profiles/default*
