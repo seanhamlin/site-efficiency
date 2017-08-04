@@ -17,8 +17,15 @@ class Profile {
   // Hosting.
   protected $siteName = '';
   protected $siteEnvironment = '';
-  protected $webServers = [];
-  protected $siteTimezone = 'UTC';
+  protected $siteShortName = '';
+  protected $siteRealm = 'prod';
+
+  // Sumologic.
+  protected $sumoLoginUrl = 'https://service.sumologic.com';
+  protected $sumoApiEndpoint = 'https://api.sumologic.com/api/v1/';
+  protected $sumoAccessId = '';
+  protected $sumoAccessKey = '';
+
 
   /**
    * Constructor.
@@ -39,8 +46,13 @@ class Profile {
 
     $this->siteName = $data['hosting']['site_name'];
     $this->siteEnvironment = $data['hosting']['site_environment'];
-    $this->webServers = $data['hosting']['web_servers'];
-    $this->siteTimezone = $data['hosting']['site_timezone'];
+    $this->siteShortName = $data['hosting']['site_short_name'];
+    $this->siteRealm = $data['hosting']['site_realm'];
+
+    $this->sumoLoginUrl = $data['sumologic']['login_url'];
+    $this->sumoApiEndpoint = $data['sumologic']['api_endpoint'];
+    $this->sumoAccessId = $data['sumologic']['authentication']['access_id'];
+    $this->sumoAccessKey = $data['sumologic']['authentication']['access_key'];
   }
 
   /**
@@ -71,6 +83,15 @@ class Profile {
   }
 
   /**
+   * Gets the path to the private key.
+   *
+   * @return mixed
+   */
+  public function getPrivateKeyFilePath() {
+    return __DIR__ . '/../../profiles/' . $this->getName() . '.p12';
+  }
+
+  /**
    * Gets the value of name.
    *
    * @return mixed
@@ -89,15 +110,6 @@ class Profile {
   }
 
   /**
-   * Gets the value of siteTimezone.
-   *
-   * @return mixed
-   */
-  public function getSiteTimezone() {
-    return $this->siteTimezone;
-  }
-
-  /**
    * Gets the value of clientId.
    *
    * @return mixed
@@ -113,15 +125,6 @@ class Profile {
    */
   public function getEmail() {
     return $this->email;
-  }
-
-  /**
-   * Gets the value of email.
-   *
-   * @return mixed
-   */
-  public function getPrivateKeyFilePath() {
-    return __DIR__ . '/../../profiles/' . $this->name . '.p12';
   }
 
   /**
@@ -152,12 +155,45 @@ class Profile {
   }
 
   /**
-   * Gets the value of web_servers.
-   *
-   * @return mixed
+   * @return string
    */
-  public function getWebServers() {
-    return $this->webServers;
+  public function getSumoLoginUrl() {
+    return $this->sumoLoginUrl;
+  }
+
+  /**
+   * @return string
+   */
+  public function getSumoApiEndpoint() {
+    return $this->sumoApiEndpoint;
+  }
+
+  /**
+   * @return string
+   */
+  public function getSumoAccessId() {
+    return $this->sumoAccessId;
+  }
+
+  /**
+   * @return string
+   */
+  public function getSumoAccessKey() {
+    return $this->sumoAccessKey;
+  }
+
+  /**
+   * @return string
+   */
+  public function getSiteShortName() {
+    return $this->siteShortName;
+  }
+
+  /**
+   * @return string
+   */
+  public function getSiteRealm() {
+    return $this->siteRealm;
   }
 
 }

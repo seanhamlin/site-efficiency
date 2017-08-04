@@ -2,6 +2,7 @@
 
 namespace SiteEfficiency\GoogleAnalytics;
 
+use DateTime;
 use Symfony\Component\Console\Output\OutputInterface;
 use Google\Api\Analytics;
 use SiteEfficiency\Profile\Profile;
@@ -11,6 +12,8 @@ class Api {
   private $profile = NULL;
   private $output = NULL;
   private $ga = NULL;
+  private $start = NULL;
+  private $end = NULL;
 
   /**
    * Constructor.
@@ -77,14 +80,19 @@ class Api {
   /**
    * Gets the top sites by pageviews.
    */
-  public function getTopHostnamesInGa($limit) {
+  public function getTopHostnamesInGa($limit, DateTime $start, DateTime $end) {
+    $this->start = $start;
+    $this->end = $end;
+
     $this->generateAccessToken();
 
     // Calls the Core Reporting API and queries for the number of sessions
     // for the last seven days.
+    // @see https://developers.google.com/analytics/devguides/reporting/core/v3/reference
     $response = $this->ga->query([
-      'start-date' => '7daysAgo',
-      'end-date' => 'yesterday',
+      // YYYY-MM-DD, and in the timezone of the GA profile.
+      'start-date' => $this->start->format('Y-m-d'),
+      'end-date' => $this->end->format('Y-m-d'),
       'metrics' => 'ga:pageviews',
       'dimensions' => 'ga:hostname',
       'sort' => '-ga:pageviews',
