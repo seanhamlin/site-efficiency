@@ -21,8 +21,7 @@ class AuditSites extends Command {
   protected $start = NULL;
   protected $end = NULL;
   protected $profile;
-
-  const TOP_HOSTNAMES_LIMIT = 10;
+  protected $limit = 10;
 
   /**
    * @inheritdoc
@@ -37,6 +36,13 @@ class AuditSites extends Command {
         InputOption::VALUE_REQUIRED,
         'The profile to use.'
       )
+      ->addOption(
+        'limit',
+        'l',
+        InputOption::VALUE_REQUIRED,
+        'The number of hostnames to have in the final report.',
+        10
+      )
     ;
   }
 
@@ -48,6 +54,10 @@ class AuditSites extends Command {
 
     $this->profile = new Profile($input->getOption('profile'));
     $this->output = $output;
+
+    if ($input->getOption('limit')) {
+      $this->limit = (int) $input->getOption('limit');
+    }
 
     $io = new SymfonyStyle($input, $output);
     $io->title('Audit sites report');
@@ -63,29 +73,39 @@ class AuditSites extends Command {
 
     // Get all zone data including pagination.
     $GaApi = new GaApi($this->profile, $output);
-    $resultsGa = $GaApi->getTopHostnamesInGa(self::TOP_HOSTNAMES_LIMIT * 4, $start, $end);
+    $resultsGa = $GaApi->getTopHostnamesInGa($this->limit * 4, $start, $end);
     //var_dump($resultsGa);
 
     // Query Sumologic.
     $SumoApi = new SumoApi($this->profile, $output);
-    $resultsSumo = $SumoApi->getPhpTimeForHostnames(self::TOP_HOSTNAMES_LIMIT * 4, $start, $end);
+    $resultsSumo = $SumoApi->getPhpTimeForHostnames($this->limit * 4, $start, $end);
     //var_dump($resultsSumo);
 
     // Combine the arrays, key on domain.
     $resultsCombined = [];
     foreach ($resultsSumo['sites'] as $resultSumo) {
+      $found = FALSE;
       foreach ($resultsGa['sites'] as $resultGa) {
         if ($resultSumo['domain'] === $resultGa['domain']) {
+          $found = TRUE;
           $resultsCombined[] = $resultSumo + [
             'pageviews' => $resultGa['pageviews']
           ];
           break;
         }
       }
+
+      // Missing GA stats for the domain. This could be indicative of having the
+      // tracker mis-configured.
+      if (!$found) {
+        $resultsCombined[] = $resultSumo + [
+          'pageviews' => 'N/A'
+        ];
+      }
     }
 
     // Slice it down.
-    $resultsCombined = array_slice($resultsCombined, 0, self::TOP_HOSTNAMES_LIMIT);
+    $resultsCombined = array_slice($resultsCombined, 0, $this->limit);
     var_dump($resultsCombined);
 
     $seconds = $this->timerEnd();
