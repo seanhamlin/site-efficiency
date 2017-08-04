@@ -1,0 +1,73 @@
+{% include 'includes/header.html.twig' %}
+
+<!-- Main jumbotron for a primary marketing message or call to action -->
+<div class="jumbotron">
+  <div class="container">
+    <h1>Site Efficiency Report</h1>
+    <p>Report run across the top <strong>{{ meta['limit'] }}</strong> site{% if meta['limit'] > 1 %}s{% endif %} using the most PHP resources.</p>
+  </div>
+</div>
+
+<div class="container">
+  <!-- Example row of columns -->
+  <div class="row">
+
+    <div class="col-sm-12">
+      <h2>Sites</h2>
+
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Domain</th>
+            <th>Resource Consumption</th>
+            <th>PHP time</th>
+            <th>Avg page load</th>
+            <th>Drupal requests</th>
+            <th>Page views</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for index, site in sites %}
+            <tr>
+              <td>{{ site.domain }}</td>
+              <td>{{ site.resource_consumption_pct }}</td>
+              <td>{{ site.domain_run_time | number_format(0, '.', ',') }}</td>
+              <td>{{ site.page_load_avg }}</td>
+              <td>{{ site.requests | number_format(0, '.', ',') }}</td>
+              <td>{{ site.pageviews | number_format(0, '.', ',') }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+    </div>
+
+    <div class="col-sm-12">
+      <div class="well">
+        <h2>Help</h2>
+        <dl>
+          <dt>What is a zone?</dt>
+          <dd>A zone is equilivent to a domain, for example <code>example.com</code>. A single zone can cover unlimited subdomains, e.g. <code>edit.example.com</code> or <code>www.example.com</code>.</dd>
+
+          <dt>What does "Status" mean?</dt>
+          <dd>When you need to activate a zone through a TXT record, a zone will be pending until this action is complete. A value of "Active" indicates the zone is ready to use.</dd>
+
+          <dt>What does "Usage" mean?</dt>
+          <dd>Lists whether or not a zone has setup the page rules to enable Acquia Cloud Edge CDN and whether the global WAF enabled setting is enabled or not. If there are more advanced page rules in use, this value may be misleading.</dd>
+
+          <dt>What is a "ZoneID"?</dt>
+          <dd>Every zone in Cloudflare is assigned a unique string for a zone ID. This is mainly used for talking with the API and is useful if you wanted to refer to a particular zone.</dd>
+        </dl>
+      </div>
+    </div>
+
+  </div>
+
+  <hr>
+
+  <footer>
+    <p><small>&copy; site efficiency {{ 'now' | date('Y') }}. Report generated at {{ 'now' | date('Y-m-d h:i a (T)') }}, taking {{ meta['execution time'] }} second{% if meta['execution time'] != 1 %}s{% endif %}.</small></p>
+  </footer>
+</div> <!-- /container -->
+
+{% include 'includes/footer.html.twig' %}

@@ -2,3 +2,5 @@
 vendor
 profiles/*
 !profiles/default*
+reports/*
+!reports/README.md

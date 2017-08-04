@@ -37,6 +37,9 @@ class Api {
         'Accept'       => 'application/json',
         'User-Agent'   => 'site-efficiency/1.0',
       ],
+      'allow_redirects' => FALSE,
+      'connect_timeout' => 5,
+      'timeout' => 5,
       'auth' => [
         $this->profile->getSumoAccessId(), $this->profile->getSumoAccessKey()
       ],
