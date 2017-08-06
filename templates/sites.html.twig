@@ -20,12 +20,13 @@
       <table class="table">
         <thead>
           <tr>
-            <th>Domain</th>
-            <th class="text-right">PHP usage</th>
-            <th class="text-right">Avg page load</th>
-            <th class="text-right">Drupal requests</th>
+            <th>Hostname</th>
+            <th class="text-right">PHP usage ↓</th>
+            <th class="text-right">Average<br>page load</th>
+            <th class="text-right">Drupal<br>requests</th>
             <th class="text-right">Page views</th>
-            <th class="text-right">PHP time vs page views</th>
+            <th class="text-right">PHP time<br>vs page views</th>
+            <th class="text-right">PHP time %<br>vs page views %</th>
           </tr>
         </thead>
         <tbody>
@@ -59,9 +60,16 @@
               </td>
               <td class="text-right">
                 {% if site.pageviews > 0 %}
+                  {{ (site.domain_run_time / site.pageviews) | number_format(2, '.', ',') }}
+                {% else %}
+                  0
+                {% endif %}
+              </td>
+              <td class="text-right">
+                {% if site.pageviews > 0 %}
                   {{ (site.resource_consumption_pct / pageviews_pct) | number_format(2, '.', ',') }}
                 {% else %}
-                  -
+                  0
                 {% endif %}
               </td>
             </tr>

@@ -68,6 +68,7 @@ class Api {
       sleep(3);
       echo '.';
     }
+    echo "\n";
     $records = $this->getSearchJobRecords();
     $this->deleteSearchJob();
     return $records;
