@@ -39,7 +39,6 @@ class Api {
       $accessToken = file_get_contents($this->profile->getTokenPath());
       $this->ga->setAccessToken($accessToken);
 
-      // Debug logging.
       if ($this->output->isVerbose()) {
         $this->output->writeln(" > Debug: Access token {$accessToken} [from cache]");
       }
@@ -52,7 +51,6 @@ class Api {
         $this->profile->deleteToken();
         $this->ga->setAccessToken(NULL);
 
-        // Debug logging.
         if ($this->output->isVerbose()) {
           $this->output->writeln(" > Debug: Deleted stale access token");
         }
@@ -122,7 +120,6 @@ class Api {
       throw new \Exception('Error getting data from Google, error was HTTP ' . $response['http_code'] . ' - ' . $response['error']['message'] . '.');
     }
 
-    // Debug logging.
     if ($this->output->isVerbose()) {
       $this->output->writeln(" > Debug: API call {$response['id']}");
     }
