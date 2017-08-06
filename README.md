@@ -27,7 +27,7 @@ Usage:
 Options:
   -p, --profile=PROFILE  The profile to use.
   -l, --limit=LIMIT      The number of hostnames to have in the final report. [default: 10]
-  -r, --range=RANGE      The report range in days. The default end date is at least 24 hours in the past. [default: "7"]
+  -r, --range=RANGE      The report range in days. The default end date is at least 24 hours in the past. [default: 7]
   -f, --format=FORMAT    Desired output format. [default: ["html"]] (multiple values allowed)
   -h, --help             Display this help message
   -q, --quiet            Do not output any message
