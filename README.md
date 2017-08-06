@@ -14,7 +14,31 @@ With large Drupal multisites, it is often hard to find out which sites are causi
 ## Usage
 
 ```bash
-./site-efficiency audit:sites --profile=govcms --limit=100 --range=7 --format=html -v
+$ ./site-efficiency audit:sites --profile=[PROFILE] --limit=100 --range=7 --format=html -v
+```
+
+There is help built in:
+
+```
+$ ./site-efficiency help audit:sites
+Usage:
+  audit:sites [options]
+
+Options:
+  -p, --profile=PROFILE  The profile to use.
+  -l, --limit=LIMIT      The number of hostnames to have in the final report. [default: 10]
+  -r, --range=RANGE      The report range in days. The default end date is at least 24 hours in the past. [default: "7"]
+  -f, --format=FORMAT    Desired output format. [default: ["html"]] (multiple values allowed)
+  -h, --help             Display this help message
+  -q, --quiet            Do not output any message
+  -V, --version          Display this application version
+      --ansi             Force ANSI output
+      --no-ansi          Disable ANSI output
+  -n, --no-interaction   Do not ask any interactive question
+  -v|vv|vvv, --verbose   Increase the verbosity of messages: 1 for normal output, 2 for more verbose output and 3 for debug
+
+Help:
+  Audits your Google Analytics pages views vs drupal requests for a time frame.
 ```
 
 ## Gotchas
