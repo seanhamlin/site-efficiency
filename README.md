@@ -26,7 +26,7 @@ $ composer install
 Then you need to create a new profile, and configure it:
 
 ```
-$ cp profiles/default.yml profiles/YOURSITEHERE.yml
+$ cp profiles/default.yml profiles/[PROFILE].yml
 ```
 
 Edit the newly created profile, and insert the relevant keys and settings.
