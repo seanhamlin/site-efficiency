@@ -1,14 +1,19 @@
 # See https://developers.google.com/analytics/devguides/reporting/core/v3/quickstart/service-php
 # for more information on how to get these credentials.
 google_analytics:
-  account_id: ga:XXXXXX
-  client_id: 100XXXXXXXXXX
-  email: service-account@XXXXXX.iam.gserviceaccount.com
-  timezone: Australia/Sydney
+  profile_id: ga:XXXXXXXX
+  client_id: XXXXXXXXXXXXXXXXXXXXXX
+  email: XXXXXXXXX-service-account@XXXXXXXXXX.iam.gserviceaccount.com
 hosting:
-  site_name: sitename
-  site_environment: 01live
-  site_timezone: UTC
-  web_servers:
-    - web-1000
-    - web-1001
+  site_name: docroot
+  site_environment: prod
+  site_short_name: docroot
+  site_realm: prod
+# See https://help.sumologic.com/APIs/General-API-Information/Sumo-Logic-Endpoints-and-Firewall-Security
+# for more information on what these endpoints are for you.
+sumologic:
+  login_url: https://service.sumologic.com
+  api_endpoint: https://api.sumologic.com/api/v1/
+  authentication:
+    access_id: XXXXXXXXXXXXXX
+    access_key: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
