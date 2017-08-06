@@ -22,7 +22,7 @@ class AuditSites extends Command {
   protected $profile;
   protected $format = [];
   protected $limit = 10;
-  protected $range = '7';
+  protected $range = 7;
 
   /**
    * @inheritdoc
@@ -49,7 +49,7 @@ class AuditSites extends Command {
         'r',
         InputOption::VALUE_REQUIRED,
         'The report range in days. The default end date is at least 24 hours in the past.',
-        '7'
+        7
       )
       ->addOption(
         'format',
