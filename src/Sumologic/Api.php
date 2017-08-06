@@ -68,10 +68,15 @@ class Api {
       sleep(3);
       echo '.';
     }
-    return $this->getSearchJobRecords();
+    $records = $this->getSearchJobRecords();
+    $this->deleteSearchJob();
+    return $records;
   }
 
   /**
+   * Get the actual query to send to Sumologic, performing any substitutions as
+   * needed.
+   *
    * @return string
    */
   private function getSumoQuery() {
@@ -89,8 +94,9 @@ class Api {
   }
 
   /**
-   * Create a new Search Job.
+   * Create a new Search Job using the API.
    *
+   * @see https://help.sumologic.com/APIs/Search-Job-API/About-the-Search-Job-API#Creating_a_search_job
    * @throws \Exception
    */
   private function createSearchJob() {
@@ -111,7 +117,9 @@ class Api {
   }
 
   /**
-   * Update the status.
+   * Use the search job ID to obtain the current status of a search job.
+   *
+   * @see https://help.sumologic.com/APIs/Search-Job-API/About-the-Search-Job-API#Getting_the_current_Search_Job_status
    */
   private function checkStatusOfSearchJob() {
     $response = $this->client->request('GET', "search/jobs/{$this->jobId}");
@@ -130,7 +138,12 @@ class Api {
   }
 
   /**
-   * Aggregates
+   * The search job status informs the user as to the number of produced
+   * records, if the query performs an aggregation. Those records can be
+   * requested using a paging API call (step 6 in the process flow), just as the
+   * message can be requested.
+   *
+   * @see https://help.sumologic.com/APIs/Search-Job-API/About-the-Search-Job-API#Paging_through_the_records_found_by_a_Search_Job
    */
   private function getSearchJobRecords() {
     $response = $this->client->request('GET', "search/jobs/{$this->jobId}/records", [
@@ -155,8 +168,19 @@ class Api {
   }
 
 
+  /**
+   * Although search jobs ultimately time out in the Sumo Logic backend, it's a
+   * good practice to explicitly cancel a search job when it is not needed
+   * anymore.
+   *
+   * @see https://help.sumologic.com/APIs/Search-Job-API/About-the-Search-Job-API#Deleting_a_search_job
+   */
   private function deleteSearchJob() {
-
+    $this->client->request('DELETE', "search/jobs/{$this->jobId}");
+    if ($this->output->isVerbose()) {
+      $this->output->writeln(" > Debug: Deleted search job {$this->jobId}.");
+    }
+    $this->jobId = NULL;
   }
 
 }
