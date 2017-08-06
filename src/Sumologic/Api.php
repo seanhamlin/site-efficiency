@@ -61,6 +61,9 @@ class Api {
     $this->start = $start;
     $this->end = $end;
     $this->createSearchJob();
+    if ($this->output->isVerbose()) {
+      $this->output->writeln(" > Debug: Checking status of query, each dot means the query is not yet complete.");
+    }
     while ($this->checkStatusOfSearchJob() < self::COMPLETE) {
       sleep(3);
       echo '.';
@@ -79,6 +82,9 @@ class Api {
     ]);
     $query = trim(preg_replace('/\s\s+/', ' ', $query));
     $query = str_replace(["\n", "\r"], ' ', $query);
+    if ($this->output->isVerbose()) {
+      $this->output->writeln(" > Debug: Sumologic query: {$query}");
+    }
     return $query;
   }
 

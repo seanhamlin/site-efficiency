@@ -24,6 +24,7 @@ class AuditSites extends Command {
   protected $profile;
   protected $format = [];
   protected $limit = 10;
+  protected $range = '7';
 
   /**
    * @inheritdoc
@@ -46,11 +47,18 @@ class AuditSites extends Command {
         10
       )
       ->addOption(
+        'range',
+        'r',
+        InputOption::VALUE_REQUIRED,
+        'The report range in days. The default end date is at least 24 hours in the past.',
+        '7'
+      )
+      ->addOption(
         'format',
         'f',
         InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED,
         'Desired output format.',
-        ['yaml']
+        ['html']
       )
     ;
   }
@@ -64,29 +72,35 @@ class AuditSites extends Command {
     $this->profile = new Profile($input->getOption('profile'));
     $this->limit = (int) $input->getOption('limit');
     $this->format = $input->getOption('format');
+    $this->range = (int) abs($input->getOption('range'));
     $this->output = $output;
 
     $io = new SymfonyStyle($input, $output);
-    $io->title('Audit sites report');
+    $io->title('Site efficiency report');
 
-    // Work out the date range for the report.
+    // Connect to Google, and find out the profile's timezone.
+    $gaApi = new GaApi($this->profile, $output);
+    $gaApi->getProfileTimezone();
+
+    // Work out the date range for the report. Note that there is a 24-48 delay
+    // for Google Analytics statistics, so ensure we go back at least an entire
+    // day.
+    // @see https://support.google.com/analytics/answer/1070983?hl=en
     $start = new DateTime('now', new DateTimeZone($this->profile->getTimezone()));
     $start->setTime(0,0,0);
+    $start->modify('-1 day');
     $end = clone($start);
     $end->modify('-1 second');
-    $start->modify('-7 days');
+    $start->modify("-{$this->range} days");
 
     $io->text("Report range: {$start->format(DateTime::ATOM)} - {$end->format(DateTime::ATOM)}.");
 
     // Get all zone data including pagination.
-    $GaApi = new GaApi($this->profile, $output);
-    $resultsGa = $GaApi->getTopHostnamesInGa($this->limit * 4, $start, $end);
-    //var_dump($resultsGa);
+    $resultsGa = $gaApi->getTopHostnamesInGa($this->limit * 4, $start, $end);
 
     // Query Sumologic.
     $SumoApi = new SumoApi($this->profile, $output);
     $resultsSumo = $SumoApi->getPhpTimeForHostnames($this->limit * 4, $start, $end);
-    //var_dump($resultsSumo);
 
     // Combine the arrays, key on domain.
     $resultsCombined = [];
@@ -106,7 +120,7 @@ class AuditSites extends Command {
       // tracker mis-configured.
       if (!$found) {
         $resultsCombined[] = $resultSumo + [
-          'pageviews' => 'N/A'
+          'pageviews' => '-1'
         ];
       }
     }
@@ -121,6 +135,8 @@ class AuditSites extends Command {
         'site_realm' => $this->profile->getSiteRealm(),
         'start' => $start->format('Y-m-d'),
         'end' => $end->format('Y-m-d'),
+        'total_pageviews' => $resultsGa['total']['ga:pageviews'],
+        'timezone' => $this->profile->getTimezone(),
       ],
       'sites' => $resultsCombined,
     ];

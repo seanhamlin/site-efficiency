@@ -3,8 +3,10 @@
 <!-- Main jumbotron for a primary marketing message or call to action -->
 <div class="jumbotron">
   <div class="container">
-    <h1>Site Efficiency Report</h1>
-    <p>Report run across the top <strong>{{ meta['limit'] }}</strong> site{% if meta['limit'] > 1 %}s{% endif %} using the most PHP resources.</p>
+    <h1>{{ meta['site_name'] }} site efficiency report</h1>
+    <p>Report run across the top <strong>{{ meta['limit'] }}</strong> site{% if meta['limit'] > 1 %}s{% endif %} using the most PHP resources.<br>
+      Report period <strong>{{ meta['start'] }}</strong> → <strong>{{ meta['end'] }}</strong> ({{ meta.timezone }}).
+    </p>
   </div>
 </div>
 
@@ -19,22 +21,49 @@
         <thead>
           <tr>
             <th>Domain</th>
-            <th>Resource Consumption</th>
-            <th>PHP time</th>
-            <th>Avg page load</th>
-            <th>Drupal requests</th>
-            <th>Page views</th>
+            <th class="text-right">PHP usage</th>
+            <th class="text-right">Avg page load</th>
+            <th class="text-right">Drupal requests</th>
+            <th class="text-right">Page views</th>
+            <th class="text-right">PHP time vs page views</th>
           </tr>
         </thead>
         <tbody>
           {% for index, site in sites %}
-            <tr>
+            {# Work out the percentage of pageviews this site has. #}
+            {% set pageviews_pct = 0 %}
+            {% if site.pageviews > 0 %}
+              {% set pageviews_pct = (site.pageviews / meta.total_pageviews * 100) %}
+            {% endif %}
+
+            {# Work out if the % of pageviews is > then the % of Drupal requests #}
+            {% set class = 'success' %}
+            {% if site.resource_consumption_pct > (2 * pageviews_pct) %}
+              {% set class = 'danger' %}
+            {% elseif site.resource_consumption_pct > pageviews_pct %}
+              {% set class = 'warning' %}
+            {% endif %}
+
+            <tr class="{{ class }}">
               <td>{{ site.domain }}</td>
-              <td>{{ site.resource_consumption_pct }}</td>
-              <td>{{ site.domain_run_time | number_format(0, '.', ',') }}</td>
-              <td>{{ site.page_load_avg }}</td>
-              <td>{{ site.requests | number_format(0, '.', ',') }}</td>
-              <td>{{ site.pageviews | number_format(0, '.', ',') }}</td>
+              <td class="text-right">{{ site.domain_run_time | number_format(0, '.', ',') }} ({{ site.resource_consumption_pct }})</td>
+              <td class="text-right">{{ site.page_load_avg }}</td>
+              <td class="text-right">{{ site.requests | number_format(0, '.', ',') }}</td>
+              <td class="text-right">
+                {% if site.pageviews > 0 %}
+                  {{ site.pageviews | number_format(0, '.', ',') }}
+                  ({{ pageviews_pct | number_format(2, '.', ',') }}%)
+                {% else %}
+                  0
+                {% endif %}
+              </td>
+              <td class="text-right">
+                {% if site.pageviews > 0 %}
+                  {{ (site.resource_consumption_pct / pageviews_pct) | number_format(2, '.', ',') }}
+                {% else %}
+                  -
+                {% endif %}
+              </td>
             </tr>
           {% endfor %}
         </tbody>
@@ -46,17 +75,17 @@
       <div class="well">
         <h2>Help</h2>
         <dl>
-          <dt>What is a zone?</dt>
-          <dd>A zone is equilivent to a domain, for example <code>example.com</code>. A single zone can cover unlimited subdomains, e.g. <code>edit.example.com</code> or <code>www.example.com</code>.</dd>
+          <dt>What is "PHP usage"?</dt>
+          <dd>The total amount of PHP time spent servicing requests from a domain. In brackets it the percentage of all PHP time spent on a domain.</dd>
 
-          <dt>What does "Status" mean?</dt>
-          <dd>When you need to activate a zone through a TXT record, a zone will be pending until this action is complete. A value of "Active" indicates the zone is ready to use.</dd>
+          <dt>What does "average page load" mean?</dt>
+          <dd>The average number of seconds per request. Note that this includes web and non-web requests (e.g. drush).</dd>
 
-          <dt>What does "Usage" mean?</dt>
-          <dd>Lists whether or not a zone has setup the page rules to enable Acquia Cloud Edge CDN and whether the global WAF enabled setting is enabled or not. If there are more advanced page rules in use, this value may be misleading.</dd>
+          <dt>What is a "Drupal requests"?</dt>
+          <dd>A request that hits Drupal has gone through Akamai and Varnish caching, and Apache htaccess blocks and redirects. Essentially these requests have a direct impact on platform utilisation.</dd>
 
-          <dt>What is a "ZoneID"?</dt>
-          <dd>Every zone in Cloudflare is assigned a unique string for a zone ID. This is mainly used for talking with the API and is useful if you wanted to refer to a particular zone.</dd>
+          <dt>What is a "Page view"?</dt>
+          <dd>A request that generated a Google Analytics page view. Note that these do not fire for certain logged in sections of the site, non-web requests, 404s and 500s etc.</dd>
         </dl>
       </div>
     </div>

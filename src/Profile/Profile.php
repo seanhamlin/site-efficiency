@@ -9,7 +9,7 @@ class Profile {
   protected $name = NULL;
 
   // GA.
-  protected $accountId = 'ga:';
+  protected $profileId = 'ga:';
   protected $clientId = '';
   protected $email = '';
   protected $timezone = 'UTC';
@@ -39,10 +39,9 @@ class Profile {
 
     $data = Yaml::parse(file_get_contents(__DIR__ . '/../../profiles/' . $this->name . '.yml'));
 
-    $this->accountId = $data['google_analytics']['account_id'];
+    $this->profileId = $data['google_analytics']['profile_id'];
     $this->clientId = $data['google_analytics']['client_id'];
     $this->email = $data['google_analytics']['email'];
-    $this->timezone = $data['google_analytics']['timezone'];
 
     $this->siteName = $data['hosting']['site_name'];
     $this->siteEnvironment = $data['hosting']['site_environment'];
@@ -60,7 +59,7 @@ class Profile {
    *
    * @return bool
    */
-  public function doesTokenExist() {
+  public function accessTokenExists() {
     return file_exists($this->getTokenPath());
   }
 
@@ -68,7 +67,7 @@ class Profile {
    * Delete the access token.
    */
   public function deleteToken() {
-    if ($this->doesTokenExist()) {
+    if ($this->accessTokenExists()) {
       unlink($this->getTokenPath());
     }
   }
@@ -101,12 +100,12 @@ class Profile {
   }
 
   /**
-   * Gets the value of accountId.
+   * Gets the value of profileId.
    *
    * @return mixed
    */
-  public function getAccountId() {
-    return $this->accountId;
+  public function getProfileId() {
+    return $this->profileId;
   }
 
   /**
@@ -134,6 +133,13 @@ class Profile {
    */
   public function getTimezone() {
     return $this->timezone;
+  }
+
+  /**
+   * @param string $timezone
+   */
+  public function setTimezone($timezone) {
+    $this->timezone = $timezone;
   }
 
   /**

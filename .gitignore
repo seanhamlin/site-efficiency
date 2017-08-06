@@ -4,3 +4,4 @@ profiles/*
 !profiles/default*
 reports/*
 !reports/README.md
+!reports/logo.png

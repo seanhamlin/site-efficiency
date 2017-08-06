@@ -24,17 +24,18 @@ class Api {
   }
 
   /**
-   *
+   * Ensure that there is a valid access token cached.
    */
   protected function generateAccessToken() {
     $this->ga = new Analytics('service');
     $this->ga->auth->setClientId($this->profile->getClientId());
     $this->ga->auth->setEmail($this->profile->getEmail());
     $this->ga->auth->setPrivateKey($this->profile->getPrivateKeyFilePath());
-    $this->ga->setAccountId($this->profile->getAccountId());
+    $this->ga->setAccountId($this->profile->getProfileId());
 
-    // Attempt to get the cached access token, if one does not exist.
-    if ($this->profile->doesTokenExist()) {
+    // Attempt to load a cached access token, if one already exists. If it is
+    // stale, then create a new one and cache that.
+    if ($this->profile->accessTokenExists()) {
       $accessToken = file_get_contents($this->profile->getTokenPath());
       $this->ga->setAccessToken($accessToken);
 
@@ -43,8 +44,10 @@ class Api {
         $this->output->writeln(" > Debug: Access token {$accessToken} [from cache]");
       }
 
-      // Test that the token is still valid (as they expire).
+      // Test that the token is still valid (as they expire after 60 minutes).
       $response = $this->ga->getProfiles();
+
+      // If the token is invalid, then delete it.
       if ($response['http_code'] !== 200) {
         $this->profile->deleteToken();
         $this->ga->setAccessToken(NULL);
@@ -58,7 +61,7 @@ class Api {
 
     // If no access token is present, or it was stale and since deleted, get a
     // new one.
-    if (!$this->profile->doesTokenExist()) {
+    if (!$this->profile->accessTokenExists()) {
       $auth = $this->ga->auth->getAccessToken();
 
       if ($auth['http_code'] == 200) {
@@ -70,9 +73,24 @@ class Api {
         throw new Exception('Error getting access token');
       }
 
-      // Debug logging.
       if ($this->output->isVerbose()) {
         $this->output->writeln(" > Debug: Access token {$accessToken} [from api]");
+      }
+    }
+  }
+
+  /**
+   * Find out the timezone of the profile.
+   */
+  public function getProfileTimezone() {
+    $this->generateAccessToken();
+    $response = $this->ga->getProfiles();
+    foreach ($response['items'] as $profile) {
+      if ($this->profile->getProfileId() === 'ga:' . $profile['id']) {
+        $this->profile->setTimezone($profile['timezone']);
+        if ($this->output->isVerbose()) {
+          $this->output->writeln(" > Debug: Setting timezone to {$profile['timezone']}");
+        }
       }
     }
   }
@@ -101,7 +119,7 @@ class Api {
     ]);
 
     if ($response['http_code'] !== 200) {
-      throw new \Exception('Error getting data from Google, error was HTTP ' . $response['http_code'] . ' - ' . $response['error']['message'] . '. You may want to delete the access token cache file.');
+      throw new \Exception('Error getting data from Google, error was HTTP ' . $response['http_code'] . ' - ' . $response['error']['message'] . '.');
     }
 
     // Debug logging.
