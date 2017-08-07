@@ -66,9 +66,9 @@ class Api {
     if ($this->output->isVerbose()) {
       $this->output->writeln(" > Debug: Checking status of query, each dot means the query is in progress.");
     }
-    $attempt = 8;
+    $attempt = 12;
     $options = Backoff::getDefaultOptions();
-    $options['cap'] = 20 * 1000000;
+    $options['cap'] = 60 * 1000000;
     $options['maxAttempts'] = 1000;
     $backoff = new Backoff($options);
     try {
@@ -192,12 +192,14 @@ class Api {
    *
    * @see https://help.sumologic.com/APIs/Search-Job-API/About-the-Search-Job-API#Deleting_a_search_job
    */
-  private function deleteSearchJob() {
-    $this->client->request('DELETE', "search/jobs/{$this->jobId}");
-    if ($this->output->isVerbose()) {
-      $this->output->writeln(" > Debug: Deleted search job {$this->jobId}.");
+  public function deleteSearchJob() {
+    if ($this->jobId) {
+      $this->client->request('DELETE', "search/jobs/{$this->jobId}");
+      if ($this->output->isVerbose()) {
+        $this->output->writeln(" > Debug: Deleted search job {$this->jobId}.");
+      }
+      $this->jobId = NULL;
     }
-    $this->jobId = NULL;
   }
 
 }

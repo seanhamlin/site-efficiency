@@ -23,6 +23,7 @@ class AuditSites extends Command {
   protected $format = [];
   protected $limit = 10;
   protected $range = 7;
+  protected $sumoApi = NULL;
 
   /**
    * @inheritdoc
@@ -106,8 +107,8 @@ class AuditSites extends Command {
     $resultsGa = $gaApi->getTopHostnamesInGa($this->limit * 4, $start, $end);
 
     // Query Sumologic.
-    $SumoApi = new SumoApi($this->profile, $output);
-    $resultsSumo = $SumoApi->getPhpTimeForHostnames($this->limit * 4, $start, $end);
+    $this->sumoApi = new SumoApi($this->profile, $output);
+    $resultsSumo = $this->sumoApi->getPhpTimeForHostnames($this->limit * 4, $start, $end);
 
     // Combine the arrays, key on domain.
     $resultsCombined = [];
@@ -175,6 +176,20 @@ class AuditSites extends Command {
       }
     }
   }
+
+  /**
+   * Gracefully stop the application. Killing off any long running Sumologic
+   * queries.
+   *
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   */
+  public function stopCommand(OutputInterface $output) {
+    $output->writeln('Stopping process gracefully.');
+    if ($this->sumoApi) {
+      $this->sumoApi->deleteSearchJob();
+    }
+  }
+
 
   /**
    * Convert the results into HTML.
