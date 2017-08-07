@@ -84,16 +84,19 @@
         <h2>Help</h2>
         <dl>
           <dt>What is "PHP usage"?</dt>
-          <dd>The total amount of PHP time spent servicing requests from a domain. In brackets it the percentage of all PHP time spent on a domain.</dd>
+          <dd>The total amount of PHP time in seconds spent servicing requests from a particular hostname. In brackets it the percentage of overall PHP time spent on a particular hostname.</dd>
 
           <dt>What does "average page load" mean?</dt>
           <dd>The average number of seconds per request. Note that this includes web and non-web requests (e.g. drush).</dd>
 
-          <dt>What is a "Drupal requests"?</dt>
-          <dd>A request that hits Drupal has gone through Akamai and Varnish caching, and Apache htaccess blocks and redirects. Essentially these requests have a direct impact on platform utilisation.</dd>
+          <dt>What is a "Drupal request"?</dt>
+          <dd>A request that hits Drupal has gone through Akamai and Varnish caching, and Apache htaccess blocks and redirects. Essentially these requests have a direct impact on platform utilisation. A Drupal request can include web and non-web requests (e.g. drush).</dd>
 
-          <dt>What is a "Page view"?</dt>
-          <dd>A request that generated a Google Analytics page view. Note that these do not fire for certain logged in sections of the site, non-web requests, 404s and 500s etc.</dd>
+          <dt>What is a "page view"?</dt>
+          <dd>A request that generated a Google Analytics page view. Note that these do not fire for certain logged in sections of the site, all non-web requests (e.g. Drush), AJAX requests, 404s and 500s etc. A given page view can be comprised of more than 1 Drupal request. In brackets it the percentage of overall page views for a particular hostname.</dd>
+
+          <dt>What does the column "PHP time % vs page views %" mean?</dt>
+          <dd>Essentially this is a simple relative score of how much impact to the platform does a particular domain have relative to the amount of page views it generates. A score of > 2 means the row is red, a score of > 1 is yellow, and < 1 is green.</dd>
         </dl>
       </div>
     </div>

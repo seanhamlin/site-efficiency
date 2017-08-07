@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "7f95b1859a6049421d0e8a563d728390",
+    "content-hash": "9a6fba89ea3f305507ef2cc6c2168e0d",
     "packages": [
         {
             "name": "guzzlehttp/guzzle",
@@ -618,6 +618,52 @@
                 "templating"
             ],
             "time": "2017-07-04T13:19:31+00:00"
+        },
+        {
+            "name": "yriveiro/php-backoff",
+            "version": "1.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/yriveiro/php-backoff.git",
+                "reference": "13654ceea680100da977b21eeeede438367e8207"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/yriveiro/php-backoff/zipball/13654ceea680100da977b21eeeede438367e8207",
+                "reference": "13654ceea680100da977b21eeeede438367e8207",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.3 <7.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~4.8",
+                "satooshi/php-coveralls": "~1.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Yriveiro\\Backoff\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Yago Riveiro",
+                    "email": "yago.riveiro@gmail.com"
+                }
+            ],
+            "description": "Simple backoff / retry functionality",
+            "keywords": [
+                "Jitter",
+                "backoff",
+                "exponential backoff",
+                "retry"
+            ],
+            "time": "2017-07-04T22:49:12+00:00"
         }
     ],
     "packages-dev": [],

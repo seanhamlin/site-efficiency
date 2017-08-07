@@ -13,7 +13,8 @@
         "symfony/console": "^3.1",
         "symfony/yaml": "^3.3",
         "guzzlehttp/guzzle": "^6.3",
-        "twig/twig": "^1.34"
+        "twig/twig": "^1.34",
+        "yriveiro/php-backoff": "^1.1"
     },
     "bin": ["site-efficiency"]
 }

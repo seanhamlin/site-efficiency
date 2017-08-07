@@ -48,7 +48,7 @@ class AuditSites extends Command {
         'range',
         'r',
         InputOption::VALUE_REQUIRED,
-        'The report range in days. The default end date is at least 24 hours in the past.',
+        'The report range in days. The default end date is at least 24 hours in the past. You can also use "lastmonth" to do the last calendar month.',
         7
       )
       ->addOption(
@@ -70,7 +70,7 @@ class AuditSites extends Command {
     $this->profile = new Profile($input->getOption('profile'));
     $this->limit = (int) $input->getOption('limit');
     $this->format = $input->getOption('format');
-    $this->range = (int) abs($input->getOption('range'));
+    $this->range = $input->getOption('range');
     $this->output = $output;
 
     $io = new SymfonyStyle($input, $output);
@@ -87,9 +87,18 @@ class AuditSites extends Command {
     $start = new DateTime('now', new DateTimeZone($this->profile->getTimezone()));
     $start->setTime(0,0,0);
     $start->modify('-1 day');
-    $end = clone($start);
-    $end->modify('-1 second');
-    $start->modify("-{$this->range} days");
+    if ($this->range === 'lastmonth') {
+      $start->modify('first day of this month');
+      $start->setTime(0,0,0);
+      $end = clone($start);
+      $end->modify('-1 second');
+      $start->modify('-1 month');
+    }
+    else {
+      $end = clone($start);
+      $end->modify('-1 second');
+      $start->modify("-{$this->range} days");
+    }
 
     $io->text("Report range: {$start->format(DateTime::ATOM)} - {$end->format(DateTime::ATOM)}.");
 

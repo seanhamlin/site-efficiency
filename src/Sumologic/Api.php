@@ -7,6 +7,8 @@ use SiteEfficiency\Profile\Profile;
 use GuzzleHttp\Client;
 use GuzzleHttp\Cookie\CookieJar;
 use DateTime;
+use Yriveiro\Backoff\Backoff;
+use Yriveiro\Backoff\BackoffException;
 
 class Api {
 
@@ -62,11 +64,22 @@ class Api {
     $this->end = $end;
     $this->createSearchJob();
     if ($this->output->isVerbose()) {
-      $this->output->writeln(" > Debug: Checking status of query, each dot means the query is not yet complete.");
+      $this->output->writeln(" > Debug: Checking status of query, each dot means the query is in progress.");
     }
-    while ($this->checkStatusOfSearchJob() < self::COMPLETE) {
-      sleep(3);
-      echo '.';
+    $attempt = 8;
+    $options = Backoff::getDefaultOptions();
+    $options['cap'] = 20 * 1000000;
+    $options['maxAttempts'] = 1000;
+    $backoff = new Backoff($options);
+    try {
+      while ($this->checkStatusOfSearchJob() < self::COMPLETE) {
+        echo '○';
+        $attempt++;
+        usleep($backoff->exponential($attempt));
+      }
+    }
+    catch (BackoffException $e) {
+      throw $e;
     }
     echo "\n";
     $records = $this->getSearchJobRecords();
@@ -115,6 +128,9 @@ class Api {
     }
     $data = json_decode($response->getBody());
     $this->jobId = $data->id;
+    if ($this->output->isVerbose()) {
+      $this->output->writeln(" > Debug: Search job ID {$this->jobId} created.");
+    }
   }
 
   /**
