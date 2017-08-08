@@ -4,7 +4,7 @@
 <div class="jumbotron">
   <div class="container">
     <h1>{{ meta['site_name'] }} site efficiency report</h1>
-    <p>Report run across the top <strong>{{ meta['limit'] }}</strong> site{% if meta['limit'] > 1 %}s{% endif %} using the most PHP resources.<br>
+    <p>Report run across the top <strong>{{ meta['limit'] }}</strong> site{% if meta['limit'] > 1 %}s{% endif %} using the most PHP resources on the platform.<br>
       Report period <strong>{{ meta['start'] }}</strong> → <strong>{{ meta['end'] }}</strong> ({{ meta.timezone }}).
     </p>
   </div>
@@ -15,6 +15,14 @@
   <div class="row">
 
     <div class="col-sm-12">
+      <h2>Totals</h2>
+      <ul>
+        <li><strong>{{ meta.total_resource_consumption_friendly }}</strong> of PHP time</li>
+        <li><strong>{{ meta.total_pageviews | number_format(0) }}</strong> page views in Google Analytics</li>
+      </ul>
+
+
+
       <h2>Sites</h2>
 
       <table class="table">
@@ -22,10 +30,10 @@
           <tr>
             <th>Hostname</th>
             <th class="text-right">PHP usage ↓</th>
-            <th class="text-right">Average<br>page load</th>
             <th class="text-right">Drupal<br>requests</th>
+            <th class="text-right">Average<br>page load</th>
             <th class="text-right">Page views</th>
-            <th class="text-right">PHP time<br>vs page views</th>
+            <th class="text-right">Average PHP time<br>for a page view</th>
             <th class="text-right">PHP time %<br>vs page views %</th>
           </tr>
         </thead>
@@ -47,27 +55,27 @@
 
             <tr class="{{ class }}">
               <td>{{ site.domain }}</td>
-              <td class="text-right">{{ site.domain_run_time | number_format(0, '.', ',') }} ({{ site.resource_consumption_pct }})</td>
-              <td class="text-right">{{ site.page_load_avg }}</td>
-              <td class="text-right">{{ site.requests | number_format(0, '.', ',') }}</td>
+              <td class="text-right">{{ site.domain_run_time | number_format(0) }} ({{ site.resource_consumption_pct | number_format(2) }}%)</td>
+              <td class="text-right">{{ site.requests | number_format(0) }}</td>
+              <td class="text-right">{{ (site.domain_run_time / site.requests) | number_format(2) }}</td>
               <td class="text-right">
                 {% if site.pageviews > 0 %}
-                  {{ site.pageviews | number_format(0, '.', ',') }}
-                  ({{ pageviews_pct | number_format(2, '.', ',') }}%)
+                  {{ site.pageviews | number_format(0) }}
+                  ({{ pageviews_pct | number_format(2) }}%)
                 {% else %}
                   0
                 {% endif %}
               </td>
               <td class="text-right">
                 {% if site.pageviews > 0 %}
-                  {{ (site.domain_run_time / site.pageviews) | number_format(2, '.', ',') }}
+                  {{ (site.domain_run_time / site.pageviews) | number_format(2) }}
                 {% else %}
                   0
                 {% endif %}
               </td>
               <td class="text-right">
                 {% if site.pageviews > 0 %}
-                  {{ (site.resource_consumption_pct / pageviews_pct) | number_format(2, '.', ',') }}
+                  {{ (site.resource_consumption_pct / pageviews_pct) | number_format(2) }}
                 {% else %}
                   0
                 {% endif %}
@@ -106,7 +114,7 @@
   <hr>
 
   <footer>
-    <p><small>&copy; site efficiency {{ 'now' | date('Y') }}. Report generated at {{ 'now' | date('Y-m-d h:i a (T)') }}, taking {{ meta['execution time'] }} second{% if meta['execution time'] != 1 %}s{% endif %}.</small></p>
+    <p><small>&copy; site efficiency {{ 'now' | date('Y') }}. Report generated at {{ 'now' | date('Y-m-d h:i a (T)') }}, taking {{ meta['execution time'] | number_format(2) }} second{% if meta['execution time'] != 1 %}s{% endif %}.</small></p>
   </footer>
 </div> <!-- /container -->
 

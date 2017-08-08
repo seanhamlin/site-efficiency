@@ -1,13 +1,8 @@
 _sourceCategory=syslog stage=[site_realm] (_index=drupal_requests_index) namespace=[site_short_name].drupal-requests
-| sum(php_time) as domain_run_time, count as requests, avg(php_time) as page_load_avg by domain
+| sum(php_time) as domain_run_time, count as requests by domain
 | total domain_run_time as total_runtime
-| (domain_run_time / total_runtime) * 100 as resource_consumption
-| format("%.2f%%", resource_consumption) as resource_consumption_pct
+| (domain_run_time / total_runtime) * 100 as resource_consumption_pct
 | total requests as total_requests
-| (requests / total_requests) * 100 as traffic_load
-| format("%.2f%%", traffic_load) as traffic_load_pct
-| format("%.2f", page_load_avg) as page_load_avg
-| resource_consumption / traffic_load as tenancy_economy
-| format("%.2f", tenancy_economy) as tenancy_economy
+| (requests / total_requests) * 100 as traffic_load_pct
 | order by domain_run_time desc
-| fields domain, domain_run_time, resource_consumption_pct, requests, traffic_load_pct, page_load_avg, tenancy_economy
+| fields domain, domain_run_time, resource_consumption_pct, requests, traffic_load_pct

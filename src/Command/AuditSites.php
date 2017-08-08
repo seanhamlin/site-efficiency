@@ -13,6 +13,7 @@ use Symfony\Component\Yaml\Yaml;
 use SiteEfficiency\Profile\Profile;
 use SiteEfficiency\GoogleAnalytics\Api as GaApi;
 use SiteEfficiency\Sumologic\Api as SumoApi;
+use SiteEfficiency\Helper\Time;
 
 class AuditSites extends Command {
 
@@ -144,6 +145,7 @@ class AuditSites extends Command {
         'start' => $start->format('Y-m-d'),
         'end' => $end->format('Y-m-d'),
         'total_pageviews' => $resultsGa['total']['ga:pageviews'],
+        'total_resource_consumption' => ($resultsCombined[0]['domain_run_time'] / $resultsCombined[0]['resource_consumption_pct'] * 100),
         'timezone' => $this->profile->getTimezone(),
       ],
       'sites' => $resultsCombined,
@@ -152,6 +154,7 @@ class AuditSites extends Command {
     $seconds = $this->timerEnd();
     $io->text("Execution time: $seconds seconds.");
     $variables['meta']['execution time'] = $seconds;
+    $variables['meta']['total_resource_consumption_friendly'] = Time::formatDateSeconds((int) $variables['meta']['total_resource_consumption']);
 
     foreach ($this->format as $format) {
       $filename = $this->profile->getSiteShortName() . '-sites';

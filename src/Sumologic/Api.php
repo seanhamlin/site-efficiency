@@ -20,10 +20,11 @@ class Api {
   private $start = NULL;
   private $end = NULL;
 
-  const NOT_STARTED = 0;
-  const IN_PROGRESS = 1;
-  const COMPLETE = 2;
-  const CANCELLED = 3;
+  const RATE_LIMITED = 1;
+  const NOT_STARTED = 2;
+  const IN_PROGRESS = 3;
+  const COMPLETE = 4;
+  const CANCELLED = 5;
 
   /**
    * Constructor.
@@ -68,14 +69,25 @@ class Api {
     }
     $attempt = 12;
     $options = Backoff::getDefaultOptions();
-    $options['cap'] = 60 * 1000000;
+    $options['cap'] = 120 * 1000000;
     $options['maxAttempts'] = 1000;
     $backoff = new Backoff($options);
     try {
-      while ($this->checkStatusOfSearchJob() < self::COMPLETE) {
-        echo '○';
+      $status = $this->checkStatusOfSearchJob();
+      while ($status < self::COMPLETE) {
+        switch ($status) {
+          case self::RATE_LIMITED:
+            echo '✗';
+            break;
+          case self::IN_PROGRESS:
+            echo '○';
+            break;
+          default:
+            echo '.';
+        }
         $attempt++;
         usleep($backoff->exponential($attempt));
+        $status = $this->checkStatusOfSearchJob();
       }
     }
     catch (BackoffException $e) {
@@ -134,12 +146,16 @@ class Api {
   }
 
   /**
-   * Use the search job ID to obtain the current status of a search job.
+   * Use the search job ID to obtain the current status of a search job. Ignore
+   * rate limit errors, as they only last for 1 minute.
    *
    * @see https://help.sumologic.com/APIs/Search-Job-API/About-the-Search-Job-API#Getting_the_current_Search_Job_status
    */
   private function checkStatusOfSearchJob() {
-    $response = $this->client->request('GET', "search/jobs/{$this->jobId}");
+    $response = $this->client->request('GET', "search/jobs/{$this->jobId}", ['http_errors' => false]);
+    if ($response->getStatusCode() === 429) {
+      return self::RATE_LIMITED;
+    }
     $data = json_decode($response->getBody());
     $state = $data->state;
     switch ($state) {
@@ -177,8 +193,7 @@ class Api {
     ];
 
     foreach ($records as $key => $record) {
-      $map = (array) $record->map;
-      $return['sites'][] = $map;
+      $return['sites'][] = (array) $record->map;
     }
 
     return $return;
