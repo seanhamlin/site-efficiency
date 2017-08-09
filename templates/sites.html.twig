@@ -114,7 +114,7 @@
   <hr>
 
   <footer>
-    <p><small>&copy; site efficiency {{ 'now' | date('Y') }}. Report generated at {{ 'now' | date('Y-m-d h:i a (T)') }}, taking {{ meta['execution time'] | number_format(2) }} second{% if meta['execution time'] != 1 %}s{% endif %}.</small></p>
+    <p><small>&copy; site efficiency {{ 'now' | date('Y') }}. Report generated at {{ 'now' | date('Y-m-d h:i a (T)') }}, taking {{ meta['execution time'] | number_format(0) }} second{% if meta['execution time'] != 1 %}s{% endif %}.</small></p>
   </footer>
 </div> <!-- /container -->
 
